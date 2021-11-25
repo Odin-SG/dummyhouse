@@ -1,0 +1,30 @@
+____________FIRST___________
+Загрузить библиотку abseil-cpp отдельно. Скомпилить и установить
+git clone https://github.com/abseil/abseil-cpp.git
+cmake ./
+make
+sudo make install
+____________________________
+____________TWO_____________
+git clone --recursive https://github.com/ClickHouse/clickhouse-cpp.git
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+____________________________
+____________THREE___________
+Добавить в проект tests/simple в CMakeLists.txt строчку
+target_compile_features(simple-test PRIVATE cxx_std_17)
+Она подрубает 17 стандарт С++.
+____________________________
+____________FOUR____________
+mkdir build
+cd build
+cmake ..
+make
+____________________________
+____________FIVE____________
+Включи библиотку с помощью
+sudo ldconfig
+
