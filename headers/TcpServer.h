@@ -1,6 +1,9 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
+#include <stdexcept>
+#include <iostream>
+#include <cmath>
 #include <cstdint>
 #include <functional>
 #include <thread>
@@ -16,6 +19,9 @@
 
 #else // *nix
 
+#include <stdexcept>
+#include <iostream>
+#include <cmath>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -31,6 +37,7 @@
 
 //Буффер для приёма данных от клиента
 static constexpr uint16_t buffer_size = 4096;
+static constexpr uint16_t temp_buff = 2048;
 
 struct TcpServer {
     class Client;
@@ -95,6 +102,10 @@ public:
     int socket;
     struct sockaddr_in address;
     char buffer[buffer_size];
+	int headerEnd;
+	int sizeData;
+	std::map<std::string, std::string> params;
+
 public:
     Client(int socket, struct sockaddr_in address);
 #endif
@@ -105,8 +116,8 @@ public:
     uint16_t getPort() const;
 
     int loadData();
-    char* getData();
-
+    char* getData(int);
+	char* parseData();
     bool sendData(const char* buffer, const size_t size) const;
 };
 

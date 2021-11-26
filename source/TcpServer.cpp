@@ -1,5 +1,6 @@
 #include "../headers/TcpServer.h"
 #include <chrono>
+#include <map>
 
 //Конструктор принимает:
 //port - порт на котором будем запускать сервер
@@ -41,8 +42,68 @@ void TcpServer::joinLoop() {handler_thread.join();}
 
 //Загружает в буфер данные от клиента и возвращает их размер
 int TcpServer::Client::loadData() {return recv(socket, buffer, buffer_size, 0);}
-//Возвращает указатель на буфер с данными от клиента
-char* TcpServer::Client::getData() {return buffer;}
+
+//Возвращает указатель на буфер с данными от клиента и пишем поле длинну заголовков
+char* TcpServer::Client::getData(int size) {
+	int hStop = size;
+	for(int i = 0; i < size; i++){
+		if(buffer[i] == '\n' && buffer[i-1] == '\r' && buffer[i+2] == '\n' && buffer[i+1] == '\r'){
+				hStop = i + 3;
+			}
+	}
+	headerEnd = hStop;
+	sizeData = size;
+	return buffer;
+}
+using namespace std;
+//Парсим данные. Те, что после заголовков.
+char* TcpServer::Client::parseData() {
+	int startName = headerEnd, endName = headerEnd;
+	int startVal = headerEnd, endVal = headerEnd;
+	char tempBufName[temp_buff], tempBufVal[temp_buff];
+
+	for(int pos = headerEnd; pos < sizeData; pos++){
+		cout << buffer[pos] << " ";
+		if(buffer[pos] == ':'){
+			endName = pos;
+			cout << "'";
+		}
+
+		if(buffer[pos] == '\n'){
+			cout << "'";
+		}
+	}
+
+	/*for(int pos = headerEnd; pos < sizeData; pos++){
+		std::cout << 123;
+		if(buffer[pos] == ':'){
+			endName = pos - 1;
+			std::cout << "is : - " << startName << " " << endName << std::endl;
+		}
+
+		//std::cout << pos << " ";
+
+		if(buffer[pos] == '\n'){
+			startVal = endName + 2;
+			endVal = pos - 1;
+
+			//std::cout << "is n - " << startName << " " << endName << startVal << endVal << std::endl;
+
+			memcpy(tempBufName, &buffer[startName], endName - startName);
+			memcpy(tempBufVal, &buffer[startVal], endVal - startVal);
+
+			std::cout << "__________" << std::endl;
+			std::cout << tempBufName << " = " << tempBufVal << std::endl;
+			std::cout << "__________" << std::endl;
+
+			params["tempBufName"] = tempBufVal;
+			startName = pos + 1;
+		}
+	}*/
+
+	return buffer;
+}
+
 //Отправляет данные клиенту
 bool TcpServer::Client::sendData(const char* buffer, const size_t size) const {
 	if(send(socket, buffer, size, 0) < 0) return false;
@@ -58,10 +119,12 @@ TcpServer::status TcpServer::start() {
 	address.sin_addr.S_un.S_addr = INADDR_ANY; //Любой IP адресс
 	address.sin_port = htons(port); //Задаём порт
 	address.sin_family = AF_INET; //AF_INET - Cемейство адресов для IPv4
+	bool bMultipleApps = true;
 
 	//Инициализируем наш сокет и проверяем корректно ли прошла инициализация
 	//в противном случае возвращаем статус с ошибкой
 	if(static_cast<int>(serv_socket = socket(AF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR) return _status = status::err_socket_init;
+	SetSockOpt(SO_REUSEADDR, (void*)&bMultipleApps, sizeof(bool), SOL_SOCKET);
 	//Присваиваем к сокету адресс и порт и проверяем на коректность сокет
 	//в противном случае возвращаем статус с ошибкой
 	if(bind(serv_socket, (struct sockaddr*)&address, sizeof(address)) == SOCKET_ERROR) return _status = status::err_socket_bind;
