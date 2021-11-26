@@ -63,43 +63,24 @@ char* TcpServer::Client::parseData() {
 	char tempBufName[temp_buff], tempBufVal[temp_buff];
 
 	for(int pos = headerEnd; pos < sizeData; pos++){
-		cout << buffer[pos] << " ";
+		memset(tempBufName, 0, sizeof(tempBufName));
+		memset(tempBufVal, 0, sizeof(tempBufVal));
+
 		if(buffer[pos] == ':'){
 			endName = pos;
-			cout << "'";
+			memcpy(tempBufName, &buffer[startName], endName - startName);
+			cout << "<" << tempBufName << "> =";
 		}
 
 		if(buffer[pos] == '\n'){
-			cout << "'";
+			startVal = endName+1;
+			endVal = pos;
+
+			memcpy(tempBufVal, &buffer[startVal], endVal - startVal);
+			cout << "= <" << tempBufVal << ">" << endl;
+			startName = pos+1;
 		}
 	}
-
-	/*for(int pos = headerEnd; pos < sizeData; pos++){
-		std::cout << 123;
-		if(buffer[pos] == ':'){
-			endName = pos - 1;
-			std::cout << "is : - " << startName << " " << endName << std::endl;
-		}
-
-		//std::cout << pos << " ";
-
-		if(buffer[pos] == '\n'){
-			startVal = endName + 2;
-			endVal = pos - 1;
-
-			//std::cout << "is n - " << startName << " " << endName << startVal << endVal << std::endl;
-
-			memcpy(tempBufName, &buffer[startName], endName - startName);
-			memcpy(tempBufVal, &buffer[startVal], endVal - startVal);
-
-			std::cout << "__________" << std::endl;
-			std::cout << tempBufName << " = " << tempBufVal << std::endl;
-			std::cout << "__________" << std::endl;
-
-			params["tempBufName"] = tempBufVal;
-			startName = pos + 1;
-		}
-	}*/
 
 	return buffer;
 }
