@@ -11,6 +11,7 @@
 #include <clickhouse/client.h>
 #include <clickhouse/error_codes.h>
 #include <clickhouse/types/type_parser.h>
+#include "../headers/dbaction.h"
 
 
 #ifdef _WIN32 // Windows NT
@@ -117,8 +118,10 @@ public:
 
     int loadData();
     char* getData(int);
-	char* parseData();
+	std::map<std::string, std::string>* parseData();
     bool sendData(const char* buffer, const size_t size) const;
+	void cleanData();
+	void __dumpData();
 };
 
 #endif // TCPSERVER_H

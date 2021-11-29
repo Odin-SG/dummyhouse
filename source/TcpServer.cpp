@@ -43,7 +43,7 @@ void TcpServer::joinLoop() {handler_thread.join();}
 //Загружает в буфер данные от клиента и возвращает их размер
 int TcpServer::Client::loadData() {return recv(socket, buffer, buffer_size, 0);}
 
-//Возвращает указатель на буфер с данными от клиента и пишем поле длинну заголовков
+//Возвращает указатель на буфер с данными от клиента и пишем в поле длинну заголовков
 char* TcpServer::Client::getData(int size) {
 	int hStop = size;
 	for(int i = 0; i < size; i++){
@@ -57,33 +57,46 @@ char* TcpServer::Client::getData(int size) {
 }
 using namespace std;
 //Парсим данные. Те, что после заголовков.
-char* TcpServer::Client::parseData() {
+std::map<std::string, std::string>* TcpServer::Client::parseData() {
 	int startName = headerEnd, endName = headerEnd;
 	int startVal = headerEnd, endVal = headerEnd;
 	char tempBufName[temp_buff], tempBufVal[temp_buff];
 
 	for(int pos = headerEnd; pos < sizeData; pos++){
-		memset(tempBufName, 0, sizeof(tempBufName));
-		memset(tempBufVal, 0, sizeof(tempBufVal));
-
 		if(buffer[pos] == ':'){
 			endName = pos;
 			memcpy(tempBufName, &buffer[startName], endName - startName);
-			cout << "<" << tempBufName << "> =";
+			//cout << "<" << tempBufName << "> =";
 		}
 
-		if(buffer[pos] == '\n'){
+		if(buffer[pos] == '\\' && buffer[pos+1] == 'n'){
 			startVal = endName+1;
 			endVal = pos;
 
 			memcpy(tempBufVal, &buffer[startVal], endVal - startVal);
-			cout << "= <" << tempBufVal << ">" << endl;
-			startName = pos+1;
+			//cout << "= <" << tempBufVal << ">" << endl;
+			startName = pos+2;
+			params[tempBufName] = tempBufVal;
+
+			memset(tempBufName, 0, sizeof(tempBufName));
+			memset(tempBufVal, 0, sizeof(tempBufVal));
 		}
 	}
 
-	return buffer;
+	return &params;
 }
+
+void TcpServer::Client::cleanData(){
+	memset(buffer, 0, sizeof(buffer));
+}
+
+void TcpServer::Client::__dumpData(){
+		map<string, string>::iterator it;
+
+		for (it = params.begin(); it != params.end(); ++it)
+			cout << "->" << it->first << " " << it->second << '\n';
+}
+
 
 //Отправляет данные клиенту
 bool TcpServer::Client::sendData(const char* buffer, const size_t size) const {

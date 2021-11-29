@@ -18,25 +18,41 @@ int main(int argc, char *argv[]) {
 //Создание объекта TcpServer с передачей аргументами порта и лябда-фунции для обработк клиента
 TcpServer server( 8080,
 		[](TcpServer::Client client){
-
 			//Вывод адреса подключившего клиента в консоль
 			std::cout<<"Connected host:"<<getHost(client)<<std::endl;
 
 			//Ожидание данных от клиента
 			int size = 0;
+			int tryCount = 0;
+			bool success = true;
 			char *data;
-			while (!(size = client.loadData ()));
 
-			//Вывод размера данных и самих данных в консоль
-			data = client.getData(size);
-			client.parseData();
-			std::cout
-				<<"size: "<<size<<" bytes"<<std::endl
-				<< data << std::endl;
+			while (!size){
+				if(tryCount <= 100){
+					size = client.loadData ();
+					tryCount++;
+				} else {
+					success = false;
+					break;
+				}
+			};
+			if(success){
+				//std::cout<<std::endl<<"size: "<<size<< std::endl;
+				//Вывод размера данных и самих данных в консоль
+				DataB database("localhost", "123");
+				data = client.getData(size);
 
-			//Отправка ответа клиенту
-			const char answer[] = "Hello World from Server";
-			client.sendData(answer, sizeof (answer));
+				std::cout << "Bytes:"<<std::endl << data << std::endl;
+				std::map<std::string, std::string>* parsedData = client.parseData();
+
+				client.__dumpData();
+				database.insertTable(parsedData);
+
+				//Отправка ответа клиенту
+				const char answer[] = "Hello World from Server";
+				client.sendData(answer, sizeof (answer));
+			}
+			client.cleanData();
 		}
 );
 

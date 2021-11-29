@@ -8,11 +8,11 @@ using namespace std;
 class DataB {
 private:
 	Client client;
+	void createTable();
 public:
 	DataB(char *host, char *passwd);
 	~DataB();
-	void createTable();
-	void insertTable();
+	void insertTable(std::map<std::string, std::string>* params);
 };
 
 #endif
