@@ -240,8 +240,7 @@ void TcpServer::handlingLoop() {
 						client_handling_end.erase (id_it);
 						break;
 					}
-
-					std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 }
 

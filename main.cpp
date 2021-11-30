@@ -24,7 +24,8 @@ TcpServer server( 8080,
 			bool success = true;
 			char *data;
 			std::string hostIp;
-						//Вывод адреса подключившего клиента в консоль
+
+			//Вывод адреса подключившего клиента в консоль
 			hostIp = getHost(client);
 			std::cout<<"Connected host:"<<hostIp<<std::endl;
 
@@ -40,7 +41,7 @@ TcpServer server( 8080,
 			if(success){
 				//std::cout<<std::endl<<"size: "<<size<< std::endl;
 				//Вывод размера данных и самих данных в консоль
-				DataB database("localhost", "123");
+				DataB database((char*)"localhost", (char*)"123");
 				data = client.getData(size);
 
 				std::cout << "Bytes:"<<std::endl << data << std::endl;
