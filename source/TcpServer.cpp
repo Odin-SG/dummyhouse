@@ -57,10 +57,11 @@ char* TcpServer::Client::getData(int size) {
 }
 using namespace std;
 //Парсим данные. Те, что после заголовков.
-std::map<std::string, std::string>* TcpServer::Client::parseData() {
+std::map<std::string, std::string>* TcpServer::Client::parseData(const std::string hostIp) {
 	int startName = headerEnd, endName = headerEnd;
 	int startVal = headerEnd, endVal = headerEnd;
 	char tempBufName[temp_buff], tempBufVal[temp_buff];
+	params["ip"] = hostIp;
 
 	for(int pos = headerEnd; pos < sizeData; pos++){
 		if(buffer[pos] == ':'){
