@@ -73,13 +73,14 @@ std::map<std::string, std::string>* TcpServer::Client::parseData() {
 			startVal = endName+1;
 			endVal = pos;
 
+			memset(tempBufVal, 0, temp_buff);
 			memcpy(tempBufVal, &buffer[startVal], endVal - startVal);
-			//cout << "= <" << tempBufVal << ">" << endl;
+			//strcat(tempBufVal, "");
+			//cout << tempBufName << "= <" << strlen(tempBufVal) << ">" << endl;
 			startName = pos+2;
 			params[tempBufName] = tempBufVal;
+			memset(tempBufName, 0, temp_buff);
 
-			memset(tempBufName, 0, sizeof(tempBufName));
-			memset(tempBufVal, 0, sizeof(tempBufVal));
 		}
 	}
 
