@@ -8,13 +8,13 @@ DataB::~DataB(){
 	//client.Execute("DROP TABLE test.hits");
 }
 
-void DataB::insertTable(std::map<std::string, std::string>* params){
+void DataB::insertTable(const std::map<std::string, std::string>* params){
 	Block block;
 
 	auto session_id = std::make_shared<ColumnString>();
 	try{
 		session_id->Append(params->at("session_id"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'session_id' not exist key" << std::endl;
 		session_id->Append("");
 	}
@@ -22,7 +22,7 @@ void DataB::insertTable(std::map<std::string, std::string>* params){
 	auto ip = std::make_shared<ColumnString>();
 	try{
 		ip->Append(params->at("ip"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'ip' not exist key" << std::endl;
 		ip->Append("");
 	}
@@ -30,7 +30,7 @@ void DataB::insertTable(std::map<std::string, std::string>* params){
 	auto os = std::make_shared<ColumnString>();
 	try{
 		os->Append(params->at("os"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'os' not exist key" << std::endl;
 		os->Append("");
 	}
@@ -38,7 +38,7 @@ void DataB::insertTable(std::map<std::string, std::string>* params){
 	auto browser = std::make_shared<ColumnString>();
 	try{
 		browser->Append(params->at("browser"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'browser' not exist key" << std::endl;
 		browser->Append("");
 	}
@@ -46,7 +46,7 @@ void DataB::insertTable(std::map<std::string, std::string>* params){
 	auto timezone = std::make_shared<ColumnString>();
 	try{
 		timezone->Append(params->at("timezone"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'timezone' not exist key" << std::endl;
 		timezone->Append("");
 	}
@@ -54,7 +54,7 @@ void DataB::insertTable(std::map<std::string, std::string>* params){
 	auto cookies = std::make_shared<ColumnString>();
 	try{
 		cookies->Append(params->at("cookies"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'cookies' not exist key" << std::endl;
 		cookies->Append("");
 	}
@@ -62,7 +62,7 @@ void DataB::insertTable(std::map<std::string, std::string>* params){
 	auto prefer = std::make_shared<ColumnString>();
 	try {
 		prefer->Append(params->at("prefer"));
-	} catch(const std::out_of_range){
+	} catch(std::out_of_range const&){
 		std::cout << "'prefer' not exist key" << std::endl;
 		prefer->Append("");
 	}
