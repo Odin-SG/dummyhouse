@@ -118,7 +118,7 @@ public:
 
     int loadData();
     char* getData(int);
-	std::map<std::string, std::string>* parseData(const std::string hostIp);
+	std::map<std::string, std::string>* parseData(const std::string hostIp, const std::string hostPort);
     bool sendData(const char* buffer, const size_t size) const;
 	void cleanData();
 	void __dumpData();

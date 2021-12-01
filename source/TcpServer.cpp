@@ -51,22 +51,26 @@ char* TcpServer::Client::getData(int size) {
 				hStop = i + 3;
 			}
 	}
-	headerEnd = hStop;
+	headerEnd = hStop + 1;
 	sizeData = size;
 	return buffer;
 }
 using namespace std;
 //Парсим данные. Те, что после заголовков.
-std::map<std::string, std::string>* TcpServer::Client::parseData(const std::string hostIp) {
+std::map<std::string, std::string>* TcpServer::Client::parseData(const std::string hostIp, const std::string hostPort) {
 	int startName = headerEnd, endName = headerEnd;
 	int startVal = headerEnd, endVal = headerEnd;
 	char tempBufName[temp_buff], tempBufVal[temp_buff];
+	bool nameEnd = false;
 	params["ip"] = hostIp;
+	params["port"] = hostPort;
 
 	for(int pos = headerEnd; pos < sizeData; pos++){
-		if(buffer[pos] == ':'){
+		if(buffer[pos] == ':' && !nameEnd){
 			endName = pos;
+			memset(tempBufName, 0, temp_buff);
 			memcpy(tempBufName, &buffer[startName], endName - startName);
+			nameEnd = true;
 			//cout << "<" << tempBufName << "> =";
 		}
 
@@ -80,8 +84,7 @@ std::map<std::string, std::string>* TcpServer::Client::parseData(const std::stri
 			//cout << tempBufName << "= <" << strlen(tempBufVal) << ">" << endl;
 			startName = pos+2;
 			params[tempBufName] = tempBufVal;
-			memset(tempBufName, 0, temp_buff);
-
+			nameEnd = false;
 		}
 	}
 

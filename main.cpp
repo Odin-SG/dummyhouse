@@ -10,8 +10,11 @@ std::string getHost(const TcpServer::Client& client) {
   return std::string() + std::to_string(reinterpret_cast<unsigned char*>(&ip)[0]) + '.' +
          std::to_string(reinterpret_cast<unsigned char*>(&ip)[1]) + '.' +
          std::to_string(reinterpret_cast<unsigned char*>(&ip)[2]) + '.' +
-         std::to_string(reinterpret_cast<unsigned char*>(&ip)[3]) + ':' +
-         std::to_string( client.getPort ());
+         std::to_string(reinterpret_cast<unsigned char*>(&ip)[3]);
+}
+
+std::string getPort(const TcpServer::Client &client){
+	return std::to_string(client.getPort ());
 }
 
 int main(int argc, char *argv[]) {
@@ -23,10 +26,11 @@ TcpServer server( 8080,
 			int tryCount = 0;
 			bool success = true;
 			char *data;
-			std::string hostIp;
+			std::string hostIp, hostPort;
 
 			//Вывод адреса подключившего клиента в консоль
 			hostIp = getHost(client);
+			hostPort = getPort(client);
 			std::cout<<"Connected host:"<<hostIp<<std::endl;
 
 			while (!size){
@@ -45,13 +49,13 @@ TcpServer server( 8080,
 				data = client.getData(size);
 
 				std::cout << "Bytes:"<<std::endl << data << std::endl;
-				std::map<std::string, std::string>* parsedData = client.parseData(hostIp);
+				std::map<std::string, std::string>* parsedData = client.parseData(hostIp, hostPort);
 
 				client.__dumpData();
 				database.insertTable(parsedData);
 
 				//Отправка ответа клиенту
-				const char answer[] = "Hello World from Server";
+				const char answer[] = "HTTP/1.1 200 OK\nConnection: Keep-Alive\nContent-Type: text/html\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\n\r\n\r\n1";
 				client.sendData(answer, sizeof (answer));
 			}
 			client.cleanData();
