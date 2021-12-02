@@ -12,7 +12,7 @@ private:
 public:
 	DataB(char *host, char *passwd);
 	~DataB();
-	void insertTable(const std::map<std::string, std::string>* params);
+	void insertTable(const std::map<std::string, std::string>* params, const std::vector<std::string> *langs);
 };
 
 #endif

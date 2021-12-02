@@ -52,7 +52,7 @@ TcpServer server( 8080,
 				std::map<std::string, std::string>* parsedData = client.parseData(hostIp, hostPort);
 
 				client.__dumpData();
-				database.insertTable(parsedData);
+				database.insertTable(parsedData, client.getLang());
 
 				//Отправка ответа клиенту
 				const char answer[] = "HTTP/1.1 200 OK\nConnection: Keep-Alive\nContent-Type: text/html\nAccess-Control-Allow-Origin: *\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept\n\r\n\r\n1";

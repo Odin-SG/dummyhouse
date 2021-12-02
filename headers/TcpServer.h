@@ -22,6 +22,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <vector>
 #include <cmath>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -106,6 +107,7 @@ public:
 	int headerEnd;
 	int sizeData;
 	std::map<std::string, std::string> params;
+	std::vector<std::string> lang;
 
 public:
     Client(int socket, struct sockaddr_in address);
@@ -120,6 +122,7 @@ public:
     char* getData(int);
 	std::map<std::string, std::string>* parseData(const std::string hostIp, const std::string hostPort);
     bool sendData(const char* buffer, const size_t size) const;
+	std::vector<std::string> *getLang();
 	void cleanData();
 	void __dumpData();
 };
