@@ -1,6 +1,6 @@
 #include "../headers/dbaction.h"
 void DataB::createTable(){
-    client.Execute("CREATE TABLE IF NOT EXISTS test.hits (session_id String, ip String, port String, os String, browser String, timezone String, cookies String, prefer String) ENGINE = Memory");
+    client.Execute("CREATE TABLE IF NOT EXISTS test.hits (session_id String, ip String, port String, os String, browser String, timezone String, cookies String, prefer String, language String, languages Array(String)) ENGINE = Memory");
 }
 
 DataB::DataB(char *host, char *passwd): client(ClientOptions().SetHost(host).SetPassword(passwd).SetPingBeforeQuery(true)) {createTable();}
@@ -8,7 +8,7 @@ DataB::~DataB(){
 	//client.Execute("DROP TABLE test.hits");
 }
 
-void DataB::insertTable(const std::map<std::string, std::string>* params){
+void DataB::insertTable(const std::map<std::string, std::string> *params, const std::vector<std::string> *langs){
 	Block block;
 
 	auto session_id = std::make_shared<ColumnString>();
@@ -75,6 +75,28 @@ void DataB::insertTable(const std::map<std::string, std::string>* params){
 		prefer->Append("");
 	}
 
+	auto language = std::make_shared<ColumnString>();
+	try {
+		language->Append(params->at("language"));
+	} catch(std::out_of_range const&){
+		std::cout << "'language' not exist key" << std::endl;
+		language->Append("");
+	}
+
+	auto languages = std::make_shared<ColumnArray>(std::make_shared<ColumnString>());
+	auto nameLang = std::make_shared<ColumnString>();
+	try {
+		for(auto const &elem: *langs){
+			std::cout << elem << "-<" << std::endl;
+			nameLang->Append(elem);
+		}
+		languages->AppendAsColumn(nameLang);
+	} catch(std::out_of_range const&){
+		std::cout << "'languages' not exist key" << std::endl;
+		nameLang->Append("");
+		languages->AppendAsColumn(nameLang);
+	}
+
 	block.AppendColumn("session_id", session_id);
 	block.AppendColumn("ip", ip);
 	block.AppendColumn("port", port);
@@ -83,6 +105,8 @@ void DataB::insertTable(const std::map<std::string, std::string>* params){
 	block.AppendColumn("timezone", timezone);
 	block.AppendColumn("cookies", cookies);
 	block.AppendColumn("prefer", prefer);
+	block.AppendColumn("language", language);
+	block.AppendColumn("languages", languages);
 
 	client.Insert("test.hits", block);
 }

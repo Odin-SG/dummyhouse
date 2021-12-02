@@ -83,6 +83,18 @@ std::map<std::string, std::string>* TcpServer::Client::parseData(const std::stri
 			//strcat(tempBufVal, "");
 			//cout << tempBufName << "= <" << strlen(tempBufVal) << ">" << endl;
 			startName = pos+2;
+
+			//Создаём массив, где будем хранить раскладки пользователя
+			if(strcmp(tempBufName, "languages") == 0) {
+					std::string name(tempBufVal), val;
+					char delimiter = ';';
+					size_t pos;
+					while((pos = name.find(delimiter)) <= strlen(tempBufVal)){
+						val = name.substr(0, pos);
+						lang.push_back(val);
+						name.erase(0, pos + 1);
+					}
+			}
 			params[tempBufName] = tempBufVal;
 			nameEnd = false;
 		}
@@ -102,6 +114,9 @@ void TcpServer::Client::__dumpData(){
 			cout << "->" << it->first << " " << it->second << '\n';
 }
 
+std::vector<std::string> *TcpServer::Client::getLang(){
+	return &lang;
+}
 
 //Отправляет данные клиенту
 bool TcpServer::Client::sendData(const char* buffer, const size_t size) const {
