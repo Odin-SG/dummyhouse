@@ -47,7 +47,7 @@ char DataB::insString(clickhouse::Block *block, string *name, const std::map<std
 
 void DataB::insertTable(const std::map<std::string, std::string> *params, const std::vector<std::string> *langs){
 	Block block;
-	int colums = 7;
+	int columsCount = 7;
 
 	map<string, int> coloms = {
 		{"session_id", 1},
@@ -66,29 +66,16 @@ void DataB::insertTable(const std::map<std::string, std::string> *params, const 
 	for(auto const &colom: coloms){
 		if(colom.second == 1){
 			string name = colom.first;
-			insString(&block, &name, params);
+			columsCount -= insString(&block, &name, params);
 		}
 		if(colom.second == 2){
 			string name = colom.first;
-			intArrStrings(&block, &name, params, langs);
+			columsCount -= intArrStrings(&block, &name, params, langs);
 		}
 	}
+	if(columsCount > 0)
+		client.Insert("dummyhouse.hits", block);
 
-	/*if(colums > 0){
-		block.AppendColumn("session_id", session_id);
-		block.AppendColumn("ip", ip);
-		block.AppendColumn("port", port);
-		block.AppendColumn("os", os);
-		block.AppendColumn("browser", browser);
-		block.AppendColumn("timezone", timezone);
-		block.AppendColumn("cookies", cookies);
-		block.AppendColumn("prefer", prefer);
-		block.AppendColumn("language", language);
-		block.AppendColumn("languages", languages);
-		block.AppendColumn("fingerprint", fingerprint);*/
-
-	client.Insert("dummyhouse.hits", block);
-	//}
 }
 
 

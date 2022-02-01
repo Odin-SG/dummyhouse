@@ -64,17 +64,18 @@ std::map<std::string, std::string>* TcpServer::Client::parseData(const std::stri
 	bool nameEnd = false;
 	params["ip"] = hostIp;
 	params["port"] = hostPort;
+	bool paramExist = false;
 
 	for(int pos = headerEnd; pos < sizeData; pos++){
 		if(buffer[pos] == ':' && !nameEnd){
 			endName = pos;
 			memset(tempBufName, 0, temp_buff);
 			memcpy(tempBufName, &buffer[startName], endName - startName);
-			nameEnd = true;
+			nameEnd = true; paramExist = true;
 			//cout << "<" << tempBufName << "> =";
 		}
 
-		if(buffer[pos] == '\\' && buffer[pos+1] == 'n'){
+		if(buffer[pos] == '\\' && buffer[pos+1] == 'n' && paramExist == true){
 			startVal = endName+1;
 			endVal = pos;
 
@@ -96,7 +97,7 @@ std::map<std::string, std::string>* TcpServer::Client::parseData(const std::stri
 					}
 			}
 			params[tempBufName] = tempBufVal;
-			nameEnd = false;
+			nameEnd = false; paramExist = false;
 		}
 	}
 
