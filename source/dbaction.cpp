@@ -1,114 +1,94 @@
 #include "../headers/dbaction.h"
 void DataB::createTable(){
-    client.Execute("CREATE TABLE IF NOT EXISTS test.hits (session_id String, ip String, port String, os String, browser String, timezone String, cookies String, prefer String, language String, languages Array(String)) ENGINE = Memory");
+    client.Execute("CREATE TABLE IF NOT EXISTS dummyhouse.hits (session_id String, ip String, port String, os String, browser String, timezone String, cookies String, prefer String, language String, languages Array(String), fingerprint String) ENGINE = Memory");
 }
 
 DataB::DataB(char *host, char *passwd): client(ClientOptions().SetHost(host).SetPassword(passwd).SetPingBeforeQuery(true)) {createTable();}
 DataB::~DataB(){
-	//client.Execute("DROP TABLE test.hits");
+	//client.Execute("DROP TABLE dummyhouse.hits");
+}
+
+char DataB::intArrStrings(clickhouse::Block *block, std::string *name, const std::map<std::string, std::string> *params, const std::vector<std::string> *langs){
+	auto arr = std::make_shared<ColumnArray>(std::make_shared<ColumnString>());
+	auto elemArr = std::make_shared<ColumnString>();
+	char success = 1;
+	try {
+		for(auto const &elem: *langs){
+			std::cout << elem << "-<" << std::endl;
+			elemArr->Append(elem);
+		}
+		arr->AppendAsColumn(elemArr);
+		success = 0;
+	} catch(std::out_of_range const&){
+		std::cout << "'languages' not exist key" << std::endl;
+		elemArr->Append("");
+		arr->AppendAsColumn(elemArr);
+	}
+	block->AppendColumn(*name, arr);
+	return success;
+}
+
+
+char DataB::insString(clickhouse::Block *block, string *name, const std::map<std::string, std::string> *params) {
+	auto colom = std::make_shared<ColumnString>();
+	char success = 1;
+	try{
+		colom->Append(params->at(*name));
+		success = 0;
+	} catch(std::out_of_range const&){
+		stringstream error;
+		error <<  "'" << *name << "'  not exist key";
+		std::cout << error.str() << std::endl;
+		colom->Append("");
+	}
+	block->AppendColumn(name->c_str(), colom);
+	return success;
 }
 
 void DataB::insertTable(const std::map<std::string, std::string> *params, const std::vector<std::string> *langs){
 	Block block;
+	int colums = 7;
 
-	auto session_id = std::make_shared<ColumnString>();
-	try{
-		session_id->Append(params->at("session_id"));
-	} catch(std::out_of_range const&){
-		std::cout << "'session_id' not exist key" << std::endl;
-		session_id->Append("");
-	}
+	map<string, int> coloms = {
+		{"session_id", 1},
+		{"ip", 1},
+		{"port", 1},
+		{"os", 1},
+		{"browser", 1},
+		{"timezone", 1},
+		{"cookies", 1},
+		{"prefer", 1},
+		{"language", 1},
+		{"languages", 2},
+		{"fingerprint", 1},
+	};
 
-	auto ip = std::make_shared<ColumnString>();
-	try{
-		ip->Append(params->at("ip"));
-	} catch(std::out_of_range const&){
-		std::cout << "'ip' not exist key" << std::endl;
-		ip->Append("");
-	}
-
-	auto port = std::make_shared<ColumnString>();
-	try{
-		port->Append(params->at("port"));
-	} catch(std::out_of_range const&){
-		std::cout << "'port' not exist key" << std::endl;
-		port->Append("");
-	}
-
-	auto os = std::make_shared<ColumnString>();
-	try{
-		os->Append(params->at("os"));
-	} catch(std::out_of_range const&){
-		std::cout << "'os' not exist key" << std::endl;
-		os->Append("");
-	}
-
-	auto browser = std::make_shared<ColumnString>();
-	try{
-		browser->Append(params->at("browser"));
-	} catch(std::out_of_range const&){
-		std::cout << "'browser' not exist key" << std::endl;
-		browser->Append("");
-	}
-
-	auto timezone = std::make_shared<ColumnString>();
-	try{
-		timezone->Append(params->at("timezone"));
-	} catch(std::out_of_range const&){
-		std::cout << "'timezone' not exist key" << std::endl;
-		timezone->Append("");
-	}
-
-	auto cookies = std::make_shared<ColumnString>();
-	try{
-		cookies->Append(params->at("cookies"));
-	} catch(std::out_of_range const&){
-		std::cout << "'cookies' not exist key" << std::endl;
-		cookies->Append("");
-	}
-
-	auto prefer = std::make_shared<ColumnString>();
-	try {
-		prefer->Append(params->at("prefer"));
-	} catch(std::out_of_range const&){
-		std::cout << "'prefer' not exist key" << std::endl;
-		prefer->Append("");
-	}
-
-	auto language = std::make_shared<ColumnString>();
-	try {
-		language->Append(params->at("language"));
-	} catch(std::out_of_range const&){
-		std::cout << "'language' not exist key" << std::endl;
-		language->Append("");
-	}
-
-	auto languages = std::make_shared<ColumnArray>(std::make_shared<ColumnString>());
-	auto nameLang = std::make_shared<ColumnString>();
-	try {
-		for(auto const &elem: *langs){
-			std::cout << elem << "-<" << std::endl;
-			nameLang->Append(elem);
+	for(auto const &colom: coloms){
+		if(colom.second == 1){
+			string name = colom.first;
+			insString(&block, &name, params);
 		}
-		languages->AppendAsColumn(nameLang);
-	} catch(std::out_of_range const&){
-		std::cout << "'languages' not exist key" << std::endl;
-		nameLang->Append("");
-		languages->AppendAsColumn(nameLang);
+		if(colom.second == 2){
+			string name = colom.first;
+			intArrStrings(&block, &name, params, langs);
+		}
 	}
 
-	block.AppendColumn("session_id", session_id);
-	block.AppendColumn("ip", ip);
-	block.AppendColumn("port", port);
-	block.AppendColumn("os", os);
-	block.AppendColumn("browser", browser);
-	block.AppendColumn("timezone", timezone);
-	block.AppendColumn("cookies", cookies);
-	block.AppendColumn("prefer", prefer);
-	block.AppendColumn("language", language);
-	block.AppendColumn("languages", languages);
+	/*if(colums > 0){
+		block.AppendColumn("session_id", session_id);
+		block.AppendColumn("ip", ip);
+		block.AppendColumn("port", port);
+		block.AppendColumn("os", os);
+		block.AppendColumn("browser", browser);
+		block.AppendColumn("timezone", timezone);
+		block.AppendColumn("cookies", cookies);
+		block.AppendColumn("prefer", prefer);
+		block.AppendColumn("language", language);
+		block.AppendColumn("languages", languages);
+		block.AppendColumn("fingerprint", fingerprint);*/
 
-	client.Insert("test.hits", block);
+	client.Insert("dummyhouse.hits", block);
+	//}
 }
 
 

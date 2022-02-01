@@ -9,6 +9,11 @@ class DataB {
 private:
 	Client client;
 	void createTable();
+
+	char insString(Block*, string*, const std::map<std::string, std::string>*);
+	char intArrStrings(clickhouse::Block*, std::string*, const std::map< std::string, std::string >*, const std::vector< std::string >*)
+;
+
 public:
 	DataB(char *host, char *passwd);
 	~DataB();
