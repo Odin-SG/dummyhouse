@@ -126,6 +126,7 @@ public:
 	std::vector<std::string> *getLang();
 	void cleanData();
 	void __dumpData();
+	void debugKill();
 };
 
 #endif // TCPSERVER_H

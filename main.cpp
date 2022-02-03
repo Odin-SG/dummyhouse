@@ -47,6 +47,7 @@ TcpServer server( 8080,
 				//Вывод размера данных и самих данных в консоль
 				DataB database((char*)"127.0.0.1", (char*)"123");
 				data = client.getData(size);
+				client.debugKill();
 
 				std::cout << "Bytes:"<<std::endl << data << std::endl;
 				std::map<std::string, std::string>* parsedData = client.parseData(hostIp, hostPort);

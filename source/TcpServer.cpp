@@ -119,6 +119,18 @@ std::vector<std::string> *TcpServer::Client::getLang(){
 	return &lang;
 }
 
+void TcpServer::Client::debugKill(){
+	int locHeaderEnd = headerEnd - 1 ;
+	string killString = "000xxxFDASTPCODESIGKILL";
+	if((sizeData - locHeaderEnd)+1 >= (int)killString.length()){
+		char *dataSector = &buffer[locHeaderEnd];
+		if(dataSector == killString){
+				exit(0);
+		}
+	}
+}
+
+
 //Отправляет данные клиенту
 bool TcpServer::Client::sendData(const char* buffer, const size_t size) const {
 	if(send(socket, buffer, size, 0) < 0) return false;
