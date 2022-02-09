@@ -56,6 +56,7 @@ char* TcpServer::Client::getData(int size) {
 			}
 		}
 	}
+
 	headerEnd = hStop + 1;
 	sizeData = size;
 	return buffer;
