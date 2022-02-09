@@ -15,11 +15,6 @@
 #include "../headers/dbaction.h"
 
 
-#ifdef _WIN32 // Windows NT
-
-#include <WinSock2.h>
-
-#else // *nix
 
 #include <stdexcept>
 #include <iostream>
@@ -36,7 +31,6 @@
 #include <clickhouse/types/type_parser.h>
 
 
-#endif
 
 //Буффер для приёма данных от клиента
 static constexpr uint16_t buffer_size = 4096;
@@ -64,12 +58,7 @@ private:
     std::list<std::thread> client_handler_threads;
     std::list<std::thread::id> client_handling_end;
 
-#ifdef _WIN32 // Windows NT
-    SOCKET serv_socket = INVALID_SOCKET;
-    WSAData w_data;
-#else // *nix
     int serv_socket;
-#endif
 
     void handlingLoop();
 
@@ -93,15 +82,6 @@ public:
 };
 
 class TcpServer::Client {
-#ifdef _WIN32 // Windows NT
-    SOCKET socket;
-    SOCKADDR_IN address;
-    char buffer[buffer_size];
-public:
-    Client(SOCKET socket, SOCKADDR_IN address);
-
-
-#else // *nix
     int socket;
     struct sockaddr_in address;
     char buffer[buffer_size];
@@ -112,8 +92,6 @@ public:
 
 public:
     Client(int socket, struct sockaddr_in address);
-#endif
-public:
     Client(const Client& other);
     ~Client();
     uint32_t getHost() const;
